@@ -11,7 +11,7 @@ class NeuralNetwork:
         # Architecture Setup
         # Input layer (MNIST/Fashion-MNIST are 28x28 = 784)
         input_dim = 784 
-        hidden_sizes = cli_args.hidden_size # Expects a list from argparse
+        hidden_sizes = cli_args.hidden_layer_sizes # Expects a list from argparse
         output_dim = 10 # 10 classes
         
         prev_dim = input_dim

@@ -34,9 +34,8 @@ def parse_arguments():
     parser.add_argument('-wd', '--weight_decay', type=float, default=0.0, help='L2 regularization weight')
     
     # Architecture
-    parser.add_argument('-nhl', '--num_layers', type=int, default=1, help='Number of hidden layers')
-    parser.add_argument('-sz', '--hidden_size', type=int, nargs='+', default=[128], 
-                        help='Number of neurons in each hidden layer (list of values)')
+    parser.add_argument("-nhl","--num_layers",dest="num_hidden_layers")
+    parser.add_argument("-sz", "--hidden_size", dest="hidden_layer_sizes", nargs="+",  type=int)
     parser.add_argument('-a', '--activation', type=str, default='relu', 
                         choices=['sigmoid', 'tanh', 'relu'], help='Activation function')
     parser.add_argument('-wi', '--weight_init', type=str, default='xavier', 
