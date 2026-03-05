@@ -35,7 +35,7 @@ def parse_arguments():
     
     # Architecture
     parser.add_argument("-nhl","--num_layers",dest="num_hidden_layers")
-    parser.add_argument("-sz", "--hidden_size", dest="hidden_layer_sizes", nargs="+",  type=int)
+    parser.add_argument("-sz", "--hidden_size", dest="hidden_layer_sizes", nargs="+",  type=int, default=32)
     parser.add_argument('-a', '--activation', type=str, default='relu', 
                         choices=['sigmoid', 'tanh', 'relu'], help='Activation function')
     parser.add_argument('-wi', '--weight_init', type=str, default='xavier', 
