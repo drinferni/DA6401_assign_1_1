@@ -9,22 +9,20 @@ class NeuralNetwork:
         self.layers = []
         
         # Architecture Setup
-        # Input layer (MNIST/Fashion-MNIST are 28x28 = 784)
-        input_dim = 784 
-        hidden_sizes = cli_args.hidden_layer_sizes # Expects a list from argparse
-        output_dim = 10 # 10 classes
-        
-        prev_dim = input_dim
-        # Add Hidden Layers
-        for size in hidden_sizes:
-            self.layers.append(DenseLayer(prev_dim, size, cli_args.activation, cli_args.weight_init))
-            prev_dim = size
-            
-        # Add Output Layer (no activation, returns logits)
-        self.layers.append(DenseLayer(prev_dim, output_dim, None, cli_args.weight_init))
+        dims = [784] + cli_args.hidden_layer_sizes + [10]
         self.act_fn, self.act_grad = get_activation(cli_args.activation)
 
-        # Optimizer Setup
+        for i in range(len(dims) - 1):
+            layer = DenseLayer(dims[i], dims[i+1])
+            # Weight Initialization
+            if cli_args.weight_init == 'xavier':
+                limit = np.sqrt(6 / (dims[i] + dims[i+1]))
+                layer.W = np.random.uniform(-limit, limit, (dims[i], dims[i+1]))
+            else:
+                layer.W = np.random.randn(dims[i], dims[i+1]) * 0.01
+            layer.b = np.zeros((1, dims[i+1]))
+            self.layers.append(layer)
+        
         if cli_args.optimizer == 'sgd':
             self.optimizer = SGD(cli_args.learning_rate, cli_args.weight_decay)
         elif cli_args.optimizer == 'momentum':
@@ -38,45 +36,50 @@ class NeuralNetwork:
         out = X
         for i, layer in enumerate(self.layers):
             out = layer.forward(out)
-            # Apply activation to all but the last layer (logits)
-            if i < len(self.layers) - 1:
+            if i < len(self.layers) - 1: # No activation on output layer (logits)
                 out = self.act_fn(out)
         return out
 
     def backward(self, y_true, y_pred_logits):
-        """
-        y_true: Ground truth labels (Expected as One-Hot for analytical match)
-        y_pred_logits: Raw output from forward()
-        """
         n = y_true.shape[0]
-        probs = softmax(y_pred_logits)
         
-        # 1. Initial Delta: Gradient of Cross-Entropy w.r.t Logits
-        # dL/dz = (1/n) * (Probs - Y_true)
-        # Dividing by 'n' here ensures we are calculating the gradient of the MEAN loss
-        delta = (probs - y_true) / n
-        
+        # CRITICAL FIX: Ensure y_true is one-hot
+        if y_true.ndim == 1 or y_true.shape[1] == 1:
+            y_one_hot = np.zeros_like(y_pred_logits)
+            y_one_hot[np.arange(n), y_true.ravel().astype(int)] = 1
+        else:
+            y_one_hot = y_true
+
+        # Initial Delta (dL/dz) at the output layer
+        if self.args.loss == 'cross_entropy':
+            probs = softmax(y_pred_logits)
+            delta = (probs - y_one_hot) / n # Mean Gradient
+        else: # Mean Squared Error
+            # MSE grad w.r.t logits: 2/n * (y_pred - y_true)
+            delta = 2 * (y_pred_logits - y_one_hot) / n
+
         grad_W_list = []
         grad_b_list = []
 
-        # 2. Backpropagate through layers in reverse (Last to First)
+        # Backpropagate through layers (Last to First)
         for i in reversed(range(len(self.layers))):
             layer = self.layers[i]
             
-            # If it's a hidden layer, we must account for the activation derivative
-            # The output layer (logits) has no activation, so we skip this for i == last
-            if i < len(self.layers) - 1:
-                delta = delta * self.act_grad(layer.z_cache)
+            # 1. Update layer.grad_W and layer.grad_b via layer's internal backward
+            # This returns dL/dX (gradient flowing into this layer's input)
+            delta = layer.backward(delta)
             
-            # Step through the linear part of the layer
-            # This updates layer.grad_W and layer.grad_b
-            delta = layer.backward_step(delta)
-            
-            # Requirement: grad_Ws[0] is the last layer
+            # 2. Collect gradients: index 0 must be the last layer
             grad_W_list.append(layer.grad_W)
             grad_b_list.append(layer.grad_b)
 
-        # 3. Format as object arrays as per your provided skeleton
+            # 3. Apply activation gradient of the PREVIOUS layer 
+            # (unless we just processed the first layer)
+            if i > 0:
+                prev_z = self.layers[i-1].z_cache
+                delta = delta * self.act_grad(prev_z)
+
+        # Requirement: Store as object arrays
         self.grad_W = np.empty(len(grad_W_list), dtype=object)
         self.grad_b = np.empty(len(grad_b_list), dtype=object)
         for i in range(len(grad_W_list)):
@@ -84,7 +87,7 @@ class NeuralNetwork:
             self.grad_b[i] = grad_b_list[i]
 
         return self.grad_W, self.grad_b
-
+    
     def update_weights(self):
         # We pass self.grad_W/b (which are in last-to-first order) to optimizer
         self.optimizer.update(self.layers, self.grad_W, self.grad_b)
@@ -105,17 +108,14 @@ class NeuralNetwork:
                 self.update_weights()
 
     def get_weights(self):
+        # Ensure we return weights in the order they were created
         d = {}
         for i, layer in enumerate(self.layers):
-            d[f"W{i}"] = layer.W.copy()
-            d[f"b{i}"] = layer.b.copy()
+            d[f"W{i}"] = layer.W
+            d[f"b{i}"] = layer.b
         return d
 
     def set_weights(self, weight_dict):
         for i, layer in enumerate(self.layers):
-            w_key = f"W{i}"
-            b_key = f"b{i}"
-            if w_key in weight_dict:
-                layer.W = weight_dict[w_key].copy()
-            if b_key in weight_dict:
-                layer.b = weight_dict[b_key].copy()
+            layer.W = weight_dict[f"W{i}"]
+            layer.b = weight_dict[f"b{i}"]
