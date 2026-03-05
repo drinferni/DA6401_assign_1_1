@@ -1,6 +1,6 @@
 import numpy as np
 from .neural_layer import DenseLayer
-from .activations import softmax
+from .activations import softmax,get_activation
 from .optimizers import SGD, Momentum, RMSProp
 
 class NeuralNetwork:
@@ -22,6 +22,7 @@ class NeuralNetwork:
             
         # Add Output Layer (no activation, returns logits)
         self.layers.append(DenseLayer(prev_dim, output_dim, None, cli_args.weight_init))
+        self.act_fn, self.act_grad = get_activation(cli_args.activation)
 
         # Optimizer Setup
         if cli_args.optimizer == 'sgd':
@@ -35,43 +36,52 @@ class NeuralNetwork:
 
     def forward(self, X):
         out = X
-        for layer in self.layers:
+        for i, layer in enumerate(self.layers):
             out = layer.forward(out)
-        return out # These are the logits
+            # Apply activation to all but the last layer (logits)
+            if i < len(self.layers) - 1:
+                out = self.act_fn(out)
+        return out
 
     def backward(self, y_true, y_pred_logits):
         """
-        Calculates gradients for Cross-Entropy loss.
-        y_true: one-hot encoded or integer labels (assumed one-hot for derivation)
+        y_true: Ground truth labels (Expected as One-Hot for analytical match)
+        y_pred_logits: Raw output from forward()
         """
-        batch_size = y_true.shape[0]
+        n = y_true.shape[0]
         probs = softmax(y_pred_logits)
         
-        # Gradient of Cross-Entropy w.r.t Logits: (P - Y)
-        delta = (probs - y_true) 
+        # 1. Initial Delta: Gradient of Cross-Entropy w.r.t Logits
+        # dL/dz = (1/n) * (Probs - Y_true)
+        # Dividing by 'n' here ensures we are calculating the gradient of the MEAN loss
+        delta = (probs - y_true) / n
         
         grad_W_list = []
         grad_b_list = []
 
-        # Backprop through layers in reverse
-        for i in range(len(self.layers) - 1, -1, -1):
+        # 2. Backpropagate through layers in reverse (Last to First)
+        for i in reversed(range(len(self.layers))):
             layer = self.layers[i]
-            delta = layer.backward(delta)
             
-            # If not the first layer (going backwards), multiply by activation grad
-            if i > 0:
-                prev_layer_z = self.layers[i-1].z_cache
-                delta = delta * self.layers[i-1].activation_grad(prev_layer_z)
+            # If it's a hidden layer, we must account for the activation derivative
+            # The output layer (logits) has no activation, so we skip this for i == last
+            if i < len(self.layers) - 1:
+                delta = delta * self.act_grad(layer.z_cache)
             
+            # Step through the linear part of the layer
+            # This updates layer.grad_W and layer.grad_b
+            delta = layer.backward_step(delta)
+            
+            # Requirement: grad_Ws[0] is the last layer
             grad_W_list.append(layer.grad_W)
             grad_b_list.append(layer.grad_b)
 
-        # Create explicit object arrays as per instructions
+        # 3. Format as object arrays as per your provided skeleton
         self.grad_W = np.empty(len(grad_W_list), dtype=object)
         self.grad_b = np.empty(len(grad_b_list), dtype=object)
-        for i, (gw, gb) in enumerate(zip(grad_W_list, grad_b_list)):
-            self.grad_W[i] = gw
-            self.grad_b[i] = gb
+        for i in range(len(grad_W_list)):
+            self.grad_W[i] = grad_W_list[i]
+            self.grad_b[i] = grad_b_list[i]
 
         return self.grad_W, self.grad_b
 
