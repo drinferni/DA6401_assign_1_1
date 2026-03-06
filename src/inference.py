@@ -25,7 +25,7 @@ def parse_arguments():
     parser.add_argument('-l', '--loss', type=str, default='cross_entropy')
     parser.add_argument('-wd', '--weight_decay', type=float, default=0.0)
     parser.add_argument('-wi', '--weight_init', type=str, default='xavier')
-    parser.add_argument('-wp', '--wandb_project', type=str, default='assignment_1')
+    parser.add_argument('-w_p', '--wandb_project', type=str, default='assignment_1')
 
     return parser.parse_args()
 

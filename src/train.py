@@ -11,13 +11,15 @@ from utils.data_loader import *
 
 from ann.neural_network import NeuralNetwork
 
+# need to change the default values
+
 def parse_arguments():
 
     parser = argparse.ArgumentParser(description='Train a modular MLP using NumPy')
 
     # Dataset and Logging
     parser.add_argument('-d', '--dataset', type=str, default='mnist', choices=['mnist', 'fashion_mnist'])
-    parser.add_argument('-wp', '--wandb_project', type=str, default='DA6401_Assignment1')
+    parser.add_argument('-w_p', '--wandb_project', type=str, default='DA6401_Assignment1')
     parser.add_argument('-e', '--epochs', type=int, default=10)
     parser.add_argument('-b', '--batch_size', type=int, default=32)
     parser.add_argument('-lr', '--learning_rate', type=float, default=0.001)
