@@ -13,20 +13,19 @@ from ann.neural_network import NeuralNetwork
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Run inference on test set')
     
+    parser.add_argument('-msp','--model_path', type=str, default='best_model.npy', help='Path to .npy weights')
     parser.add_argument('-d', '--dataset', type=str, default='mnist', choices=['mnist', 'fashion_mnist'])
-    parser.add_argument('-msp','--model_path', type=str, default='src/best_model.npy', help='Path to .npy weights')
-    parser.add_argument('-b', '--batch_size', type=int, default=32)
-    parser.add_argument("-nhl","--num_layers")
-    parser.add_argument("-sz", "--hidden_size", nargs="+",  type=int, default=32)
+    parser.add_argument('-w_p', '--wandb_project', type=str, default='DA6401_Assignment1')
+    parser.add_argument('-e', '--epochs', type=int, default=25)
+    parser.add_argument('-b', '--batch_size', type=int, default=64)
+    parser.add_argument('-lr', '--learning_rate', type=float, default=0.003)
+    parser.add_argument('-o', '--optimizer', type=str, default='rmsprop',choices=['sgd', 'momentum', 'nag', 'rmsprop'])
+    parser.add_argument('-wd', '--weight_decay', type=float, default=0.001)
+    parser.add_argument("-nhl","--num_layers", default=4)
+    parser.add_argument("-sz", "--hidden_size", nargs="+",  type=int, default=[128,64,32,16])
     parser.add_argument('-a', '--activation', type=str, default='relu', choices=['sigmoid', 'tanh', 'relu'])
-    parser.add_argument('-e', '--epochs', type=int, default=10)
-    parser.add_argument('-lr', '--learning_rate', type=float, default=0.001)
-    parser.add_argument('-o', '--optimizer', type=str, default='sgd')
-    parser.add_argument('-l', '--loss', type=str, default='cross_entropy')
-    parser.add_argument('-wd', '--weight_decay', type=float, default=0.0)
-    parser.add_argument('-wi', '--weight_init', type=str, default='xavier')
-    parser.add_argument('-w_p', '--wandb_project', type=str, default='assignment_1')
-
+    parser.add_argument('-w_i', '--weight_init', type=str, default='xavier', choices=['random', 'xavier'])
+    parser.add_argument('-l', '--loss', type=str, default='cross_entropy', choices=['mean_squared_error', 'cross_entropy'])
     return parser.parse_args()
 
 
@@ -62,11 +61,9 @@ def evaluate_model(model, X_test, y_test):
 def main():
     args = parse_arguments()
     
-    _, _, X_test, y_test = load_data(args.dataset)
+    X_t, Y_t, X_test, y_test = load_data(args.dataset)
 
     wandb.init(project=args.wandb_project, config=vars(args))
-
-    X_test = X_test.reshape(X_test.shape[0], -1).astype('float32') / 255.0
     
     model = NeuralNetwork(args)
     
@@ -91,6 +88,9 @@ def main():
     print(f"Recall:    {results['recall']:.4f}")
     print(f"F1-score:  {results['f1_score']:.4f}")
     print("---------------------------\n")
+
+    best_weights = model.get_weights()
+    np.save("best_model2.npy", best_weights)
 
     return results
 

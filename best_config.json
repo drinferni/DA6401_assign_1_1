@@ -1,15 +1,17 @@
 {
     "dataset": "mnist",
     "wandb_project": "DA6401_Assignment1",
-    "epochs": 3,
-    "batch_size": 32,
-    "learning_rate": 0.01,
-    "optimizer": "nag",
-    "weight_decay": 0.0,
-    "num_layers": "2",
+    "epochs": 25,
+    "batch_size": 64,
+    "learning_rate": 0.003,
+    "optimizer": "rmsprop",
+    "weight_decay": 0.001,
+    "num_layers": 4,
     "hidden_size": [
-        3,
-        2
+        128,
+        64,
+        32,
+        16
     ],
     "activation": "relu",
     "weight_init": "xavier",

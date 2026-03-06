@@ -105,5 +105,5 @@ class NeuralNetwork:
 
     def set_weights(self, weight_dict):
         for i, layer in enumerate(self.layers):
-            layer.W = weight_dict[f"W{i}"]
-            layer.b = weight_dict[f"b{i}"]
+            layer.W = weight_dict[f"W{i}"].copy()
+            layer.b = weight_dict[f"b{i}"].copy()
