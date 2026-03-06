@@ -5,7 +5,7 @@ Evaluate trained models on test sets
 
 import argparse
 import numpy as np
-import json
+import wandb
 from utils.data_loader import *
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from ann.neural_network import NeuralNetwork
@@ -16,8 +16,8 @@ def parse_arguments():
     parser.add_argument('-d', '--dataset', type=str, default='mnist', choices=['mnist', 'fashion_mnist'])
     parser.add_argument('-msp','--model_path', type=str, default='src/best_model.npy', help='Path to .npy weights')
     parser.add_argument('-b', '--batch_size', type=int, default=32)
-    parser.add_argument('-nhl', '--num_layers', type=int, default=1)
-    parser.add_argument('-sz', '--hidden_size', type=int, nargs='+', default=[128])
+    parser.add_argument("-nhl","--num_layers")
+    parser.add_argument("-sz", "--hidden_size", nargs="+",  type=int, default=32)
     parser.add_argument('-a', '--activation', type=str, default='relu', choices=['sigmoid', 'tanh', 'relu'])
     parser.add_argument('-e', '--epochs', type=int, default=10)
     parser.add_argument('-lr', '--learning_rate', type=float, default=0.001)
@@ -64,6 +64,8 @@ def main():
     
     _, _, X_test, y_test = load_data(args.dataset)
 
+    wandb.init(project=args.wandb_project, config=vars(args))
+
     X_test = X_test.reshape(X_test.shape[0], -1).astype('float32') / 255.0
     
     model = NeuralNetwork(args)
@@ -76,6 +78,11 @@ def main():
         return
 
     results = evaluate_model(model, X_test, y_test)
+
+    wandb.log(results)
+    print(results)
+
+    wandb.finish()
     
     print("\n--- Evaluation Results ---")
     print(f"Dataset:   {args.dataset}")

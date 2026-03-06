@@ -9,7 +9,7 @@ class NeuralNetwork:
         self.layers = []
         
         # Architecture Setup
-        dims = [784] + cli_args.hidden_layer_sizes + [10]
+        dims = [784] + cli_args.hidden_size + [10]
         self.act_fn, self.act_grad = get_activation(cli_args.activation)
 
         for i in range(len(dims) - 1):

@@ -6,8 +6,8 @@
     "learning_rate": 0.01,
     "optimizer": "nag",
     "weight_decay": 0.0,
-    "num_hidden_layers": "2",
-    "hidden_layer_sizes": [
+    "num_layers": "2",
+    "hidden_size": [
         3,
         2
     ],
