@@ -70,6 +70,7 @@ def main():
     weights = load_model_weights(args.model_path)
     if weights is not None:
         model.set_weights(weights)
+        print("uwu")
     else:
         print("Failed to initialize weights")
         return
