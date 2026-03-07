@@ -6,11 +6,12 @@
     "learning_rate": 0.001,
     "optimizer": "rmsprop",
     "weight_decay": 0.001,
-    "num_layers": 3,
+    "num_layers": 4,
     "hidden_size": [
         128,
         64,
-        32
+        32,
+        16
     ],
     "activation": "relu",
     "weight_init": "xavier",
