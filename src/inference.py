@@ -63,7 +63,7 @@ def main():
     
     X_t, Y_t, X_test, y_test = load_data(args.dataset)
 
-    wandb.init(project=args.wandb_project, config=vars(args))
+    # wandb.init(project=args.wandb_project, config=vars(args))
     
     model = NeuralNetwork(args)
     
@@ -76,10 +76,10 @@ def main():
 
     results = evaluate_model(model, X_test, y_test)
 
-    wandb.log(results)
-    print(results)
+    # wandb.log(results)
+    # print(results)
 
-    wandb.finish()
+    # wandb.finish()
     
     print("\n--- Evaluation Results ---")
     print(f"Dataset:   {args.dataset}")
