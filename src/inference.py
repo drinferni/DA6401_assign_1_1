@@ -13,7 +13,7 @@ from ann.neural_network import NeuralNetwork
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Run inference on test set')
     
-    parser.add_argument('-msp','--model_path', type=str, default='best_model.npy', help='Path to .npy weights')
+    parser.add_argument('-msp','--model_path', type=str, default='src/best_model.npy', help='Path to .npy weights')
     parser.add_argument('-d', '--dataset', type=str, default='mnist', choices=['mnist', 'fashion_mnist'])
     parser.add_argument('-w_p', '--wandb_project', type=str, default='DA6401_Assignment1')
     parser.add_argument('-e', '--epochs', type=int, default=25)

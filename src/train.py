@@ -29,7 +29,7 @@ def parse_arguments():
     parser.add_argument('-a', '--activation', type=str, default='relu', choices=['sigmoid', 'tanh', 'relu'])
     parser.add_argument('-w_i', '--weight_init', type=str, default='xavier', choices=['random', 'xavier','zero'])
     parser.add_argument('-l', '--loss', type=str, default='cross_entropy', choices=['mean_squared_error', 'cross_entropy'])
-    parser.add_argument('-msp','--model_save_path', type=str, default='best_model.npy')
+    parser.add_argument('-msp','--model_save_path', type=str, default='src/best_model.npy')
 
     return parser.parse_args()
 
@@ -94,10 +94,10 @@ def main():
     wandb.finish()
 
     best_weights = model.get_weights()
-    np.save("best_model.npy", best_weights)
+    np.save("src/best_model.npy", best_weights)
 
     config_dict = vars(args)
-    with open("best_config.json", "w") as f:
+    with open("src/best_config.json", "w") as f:
         json.dump(config_dict, f, indent=4)
     
     print("training_complete")
