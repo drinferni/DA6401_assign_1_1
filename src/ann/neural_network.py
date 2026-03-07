@@ -62,7 +62,7 @@ class NeuralNetwork:
 
         
 
-    def backward(self, y_true, y_pred_logits,e):
+    def backward(self, y_true, y_pred_logits):
 
         n = y_true.shape[0]
         if y_true.ndim == 1 or y_true.shape[1] == 1:
@@ -121,7 +121,7 @@ class NeuralNetwork:
                     self.optimizer.exchange_wgt(self.layers)
                 logits = self.forward(X_batch)
                 final_loss += self.get_loss(y_batch,logits)
-                self.backward(y_batch, logits,epoch)
+                self.backward(y_batch, logits)
                 # grad_norm_L1 = np.linalg.norm(self.layers[0].grad_W)
                 # print(f"{self.args.hidden_size},{self.args.activation},{grad_norm_L1}")
                 self.update_weights()
