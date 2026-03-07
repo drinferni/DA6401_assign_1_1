@@ -17,14 +17,14 @@ def parse_arguments():
     parser.add_argument('-d', '--dataset', type=str, default='mnist', choices=['mnist', 'fashion_mnist'])
     parser.add_argument('-w_p', '--wandb_project', type=str, default='DA6401_Assignment1')
     parser.add_argument('-e', '--epochs', type=int, default=25)
-    parser.add_argument('-b', '--batch_size', type=int, default=64)
-    parser.add_argument('-lr', '--learning_rate', type=float, default=0.003)
+    parser.add_argument('-b', '--batch_size', type=int, default=128)
+    parser.add_argument('-lr', '--learning_rate', type=float, default=0.001)
     parser.add_argument('-o', '--optimizer', type=str, default='rmsprop',choices=['sgd', 'momentum', 'nag', 'rmsprop'])
     parser.add_argument('-wd', '--weight_decay', type=float, default=0.001)
     parser.add_argument("-nhl","--num_layers", default=4)
     parser.add_argument("-sz", "--hidden_size", nargs="+",  type=int, default=[128,64,32,16])
     parser.add_argument('-a', '--activation', type=str, default='relu', choices=['sigmoid', 'tanh', 'relu'])
-    parser.add_argument('-w_i', '--weight_init', type=str, default='xavier', choices=['random', 'xavier'])
+    parser.add_argument('-w_i', '--weight_init', type=str, default='xavier', choices=['random', 'xavier','zero'])
     parser.add_argument('-l', '--loss', type=str, default='cross_entropy', choices=['mean_squared_error', 'cross_entropy'])
     return parser.parse_args()
 
@@ -88,9 +88,6 @@ def main():
     print(f"Recall:    {results['recall']:.4f}")
     print(f"F1-score:  {results['f1_score']:.4f}")
     print("---------------------------\n")
-
-    best_weights = model.get_weights()
-    np.save("best_model2.npy", best_weights)
 
     return results
 

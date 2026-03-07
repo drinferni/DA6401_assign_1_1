@@ -73,7 +73,7 @@ class NAG:
 
     def exchange_wgt(self, layers):
         if self.vW is None:
-            pass
+            return
         
         self.ori_W = [np.zeros_like(g) for g in self.vW]
         self.ori_b = [np.zeros_like(g) for g in self.vb]
