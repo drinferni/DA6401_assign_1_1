@@ -43,11 +43,11 @@ class NeuralNetwork:
     def backward(self, y_true, y_pred_logits):
 
         n = y_true.shape[0]
-        # if y_true.ndim == 1 or y_true.shape[1] == 1:
-        #     y_one_hot = np.zeros_like(y_pred_logits)
-        #     y_one_hot[np.arange(n), y_true.ravel().astype(int)] = 1
-        # else:
-        y_one_hot = y_true
+        if y_true.ndim == 1 or y_true.shape[1] == 1:
+            y_one_hot = np.zeros_like(y_pred_logits)
+            y_one_hot[np.arange(n), y_true.ravel().astype(int)] = 1
+        else:
+            y_one_hot = y_true
 
 
         if self.args.loss == 'cross_entropy':
@@ -90,7 +90,7 @@ class NeuralNetwork:
                 batch_idx = indices[i:i+batch_size]
                 X_batch = X_train[batch_idx]
                 y_batch = y_train[batch_idx]
-                if self.args.optimizer == "NAG":
+                if self.args.optimizer == "nag":
                     self.optimizer.exchange_wgt(self.layers)
                 logits = self.forward(X_batch)
                 self.backward(y_batch, logits)
