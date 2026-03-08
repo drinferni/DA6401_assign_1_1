@@ -5,6 +5,9 @@ Implements: SGD, Momentum, Adam, Nadam, etc.
 
 import numpy as np
 
+#optimizer are implemented as classes so that they are hold values of previous iterations
+# we will not have to manually do that in the neural network class
+
 class Optimizer:
     def __init__(self, learning_rate=0.01, weight_decay=0.0):
         self.lr = learning_rate

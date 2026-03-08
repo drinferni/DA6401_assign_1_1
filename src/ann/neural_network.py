@@ -38,7 +38,7 @@ class NeuralNetwork:
         out = X
         for i, layer in enumerate(self.layers):
             out = layer.forward(out)
-            if i < len(self.layers) - 1: # No activation on output layer (logits)
+            if i < len(self.layers) - 1: 
                 out = self.act_fn(out)
             # result = ",".join(map(str, out))
             # print(f"{self.args.activation},{e},{i},",result)

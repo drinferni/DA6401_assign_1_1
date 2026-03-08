@@ -22,5 +22,5 @@ class DenseLayer:
         self.grad_W = np.dot(self.input_cache.T, delta) 
         self.grad_b = np.sum(delta, axis=0, keepdims=True)
         
-        # Gradient to propagate back: dL/dX = delta * W^T
+        # returning partial loss vector (need to dot multiple the derivative of activation )
         return np.dot(delta, self.W.T)

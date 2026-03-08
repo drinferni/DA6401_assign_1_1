@@ -25,7 +25,7 @@ def relu_grad(x):
     return (x > 0).astype(float)
 
 def softmax(x):
-    # Numerically stable softmax
+    # subtracting max to stabalize it
     exps = np.exp(x - np.max(x, axis=1, keepdims=True))
     return exps / np.sum(exps, axis=1, keepdims=True)
 

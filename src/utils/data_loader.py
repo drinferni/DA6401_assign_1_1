@@ -46,10 +46,6 @@ import numpy as np
 from tensorflow import keras
 
 def load_data(dataset):
-    """
-    Loads MNIST or Fashion-MNIST using Keras, processes them, 
-    and splits the training data using Scikit-learn.
-    """
     # 1. Load data from Keras
     if dataset.lower() == 'mnist':
         (x_train, y_train_raw), (x_test, y_test_raw) = keras.datasets.mnist.load_data()
